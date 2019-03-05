@@ -224,31 +224,6 @@ export default class DndManager {
         return result;
       },
 
-      hover: (dropTargetProps, monitor, component) => {
-        const targetDepth = this.getTargetDepth(
-          dropTargetProps,
-          monitor,
-          component
-        );
-        const draggedNode = monitor.getItem().node;
-        const needsRedraw =
-          // Redraw if hovered above different nodes
-          dropTargetProps.node !== draggedNode ||
-          // Or hovered above the same node but at a different depth
-          targetDepth !== dropTargetProps.path.length - 1;
-
-        if (!needsRedraw) {
-          return;
-        }
-
-        this.dragHover({
-          node: draggedNode,
-          path: monitor.getItem().path,
-          minimumTreeIndex: dropTargetProps.listIndex,
-          depth: targetDepth,
-        });
-      },
-
       canDrop: this.canDrop.bind(this),
     };
 
