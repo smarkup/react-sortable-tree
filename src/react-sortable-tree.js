@@ -113,6 +113,7 @@ class ReactSortableTree extends Component {
       searchMatches: [],
       searchFocusTreeIndex: null,
       dragging: false,
+      hoveredNode: null,
 
       // props that need to be used in gDSFP or static functions will be stored here
       instanceProps: {
@@ -177,6 +178,7 @@ class ReactSortableTree extends Component {
       newState.draggedMinimumTreeIndex = null;
       newState.draggedDepth = null;
       newState.dragging = false;
+      newState.hoveredNode = null;
     } else if (!isEqual(instanceProps.searchQuery, nextProps.searchQuery)) {
       Object.assign(
         newState,
@@ -377,51 +379,13 @@ class ReactSortableTree extends Component {
     });
   }
 
-  dragHover({
-    node: draggedNode,
-    depth: draggedDepth,
-    minimumTreeIndex: draggedMinimumTreeIndex,
-  }) {
-    // Ignore this hover if it is at the same position as the last hover
-    if (
-      this.state.draggedDepth === draggedDepth &&
-      this.state.draggedMinimumTreeIndex === draggedMinimumTreeIndex
-    ) {
+  dragHover({ hoveredNode }) {
+    if (this.state.hoveredNode === hoveredNode) {
       return;
     }
 
-    this.setState(({ draggingTreeData, instanceProps }) => {
-      // Fall back to the tree data if something is being dragged in from
-      //  an external element
-      const newDraggingTreeData = draggingTreeData || instanceProps.treeData;
-
-      const addedResult = memoizedInsertNode({
-        treeData: newDraggingTreeData,
-        newNode: draggedNode,
-        depth: draggedDepth,
-        minimumTreeIndex: draggedMinimumTreeIndex,
-        expandParent: true,
-        getNodeKey: this.props.getNodeKey,
-      });
-
-      const rows = this.getRows(addedResult.treeData);
-      const expandedParentPath = rows[addedResult.treeIndex].path;
-
-      return {
-        draggedNode,
-        draggedDepth,
-        draggedMinimumTreeIndex,
-        draggingTreeData: changeNodeAtPath({
-          treeData: newDraggingTreeData,
-          path: expandedParentPath.slice(0, -1),
-          newNode: ({ node }) => ({ ...node, expanded: true }),
-          getNodeKey: this.props.getNodeKey,
-        }),
-        // reset the scroll focus so it doesn't jump back
-        // to a search result while dragging
-        searchFocusTreeIndex: null,
-        dragging: true,
-      };
+    this.setState({
+      hoveredNode
     });
   }
 
@@ -435,6 +399,7 @@ class ReactSortableTree extends Component {
         draggedMinimumTreeIndex: null,
         draggedDepth: null,
         dragging: false,
+        hoveredNode: null
       });
 
     // Drop was cancelled
@@ -544,6 +509,7 @@ class ReactSortableTree extends Component {
     { listIndex, style, getPrevRow, matchKeys, swapFrom, swapDepth, swapLength }
   ) {
     const { node, parentNode, path, lowerSiblingCounts, treeIndex } = row;
+    const { hoveredNode } = this.state;
 
     const {
       canDrag,
@@ -599,6 +565,7 @@ class ReactSortableTree extends Component {
           isSearchMatch={isSearchMatch}
           isSearchFocus={isSearchFocus}
           canDrag={rowCanDrag}
+          hoveredNode={hoveredNode}
           toggleChildrenVisibility={this.toggleChildrenVisibility}
           {...sharedProps}
           {...nodeProps}
