@@ -6,7 +6,6 @@ import {
 import HTML5Backend from 'react-dnd-html5-backend';
 import { findDOMNode } from 'react-dom';
 import { getDepth } from './tree-data-utils';
-import { memoizedInsertNode } from './memoized-tree-data-utils';
 
 export default class DndManager {
   constructor(treeRef) {
@@ -122,44 +121,21 @@ export default class DndManager {
   }
 
   canDrop(dropTargetProps, monitor) {
-    if (!monitor.isOver()) {
-      return false;
-    }
-
-    const rowAbove = dropTargetProps.getPrevRow();
-    const abovePath = rowAbove ? rowAbove.path : [];
-    const aboveNode = rowAbove ? rowAbove.node : {};
-
-    const targetDepth = dropTargetProps.path.length;
-
-    // Cannot drop if we're adding to the children of the row above and
-    //  the row above is a function
-    if (
-      targetDepth >= abovePath.length &&
-      typeof aboveNode.children === 'function'
-    ) {
-      return false;
-    }
+    // is not reliable https://github.com/react-dnd/react-dnd/issues/996
+    // if (!monitor.isOver()) {
+    //   return false;
+    // }
 
     if (typeof this.customCanDrop === 'function') {
-      const { node } = monitor.getItem();
-      const addedResult = memoizedInsertNode({
-        treeData: this.treeData,
-        newNode: node,
-        depth: targetDepth,
-        getNodeKey: this.getNodeKey,
-        minimumTreeIndex: dropTargetProps.listIndex,
-        expandParent: true,
-      });
+      const { node, path, treeIndex } = monitor.getItem();
 
       return this.customCanDrop({
-        node,
-        prevPath: monitor.getItem().path,
-        prevParent: monitor.getItem().parentNode,
-        prevTreeIndex: monitor.getItem().treeIndex, // Equals -1 when dragged from external tree
-        nextPath: addedResult.path,
-        nextParent: addedResult.parentNode,
-        nextTreeIndex: addedResult.treeIndex,
+        draggedNode: node,
+        draggedPath: path,
+        draggedTreeIndex: treeIndex, // Equals -1 when dragged from external tree
+        overNode: dropTargetProps.node,
+        overPath: dropTargetProps.path,
+        overTreeIndex: dropTargetProps.treeIndex,
       });
     }
 
