@@ -95,8 +95,10 @@ export default class DndManager {
       // handle row direction support
       const direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1;
 
+      const offset = monitor.getDifferenceFromInitialOffset() || { x: 0 };
+
       blocksOffset = Math.round(
-        (direction * monitor.getDifferenceFromInitialOffset().x) /
+        (direction * offset.x) /
           dropTargetProps.scaffoldBlockPxWidth
       );
     }
