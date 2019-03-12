@@ -114,6 +114,7 @@ class ReactSortableTree extends Component {
       searchFocusTreeIndex: null,
       dragging: false,
       hoveredNode: null,
+      hoveredPath: null,
 
       // props that need to be used in gDSFP or static functions will be stored here
       instanceProps: {
@@ -179,6 +180,7 @@ class ReactSortableTree extends Component {
       newState.draggedDepth = null;
       newState.dragging = false;
       newState.hoveredNode = null;
+      newState.hoveredPath = null;
     } else if (!isEqual(instanceProps.searchQuery, nextProps.searchQuery)) {
       Object.assign(
         newState,
@@ -379,13 +381,14 @@ class ReactSortableTree extends Component {
     });
   }
 
-  dragHover({ hoveredNode }) {
+  dragHover({ hoveredNode, hoveredPath }) {
     if (this.state.hoveredNode === hoveredNode) {
       return;
     }
 
     this.setState({
-      hoveredNode
+      hoveredNode,
+      hoveredPath
     });
   }
 
@@ -399,7 +402,8 @@ class ReactSortableTree extends Component {
         draggedMinimumTreeIndex: null,
         draggedDepth: null,
         dragging: false,
-        hoveredNode: null
+        hoveredNode: null,
+        hoveredPath: null
       });
 
     // Drop was cancelled
@@ -509,7 +513,7 @@ class ReactSortableTree extends Component {
     { listIndex, style, getPrevRow, matchKeys, swapFrom, swapDepth, swapLength }
   ) {
     const { node, parentNode, path, lowerSiblingCounts, treeIndex } = row;
-    const { hoveredNode } = this.state;
+    const { hoveredNode, hoveredPath } = this.state;
 
     const {
       canDrag,
@@ -566,6 +570,7 @@ class ReactSortableTree extends Component {
           isSearchFocus={isSearchFocus}
           canDrag={rowCanDrag}
           hoveredNode={hoveredNode}
+          hoveredPath={hoveredPath}
           toggleChildrenVisibility={this.toggleChildrenVisibility}
           {...sharedProps}
           {...nodeProps}

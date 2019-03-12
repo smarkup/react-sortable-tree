@@ -226,7 +226,7 @@ export default class DndManager {
       },
 
       hover: (dropTargetProps) => {
-        this.dragHover({ hoveredNode: dropTargetProps.node });
+        this.dragHover({ hoveredNode: dropTargetProps.node, hoveredPath: dropTargetProps.path });
       },
 
       canDrop: this.canDrop.bind(this),
