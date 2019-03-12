@@ -2215,7 +2215,8 @@ function () {
         }
       } else {
         // handle row direction support
-        var direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1;
+        var direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1; // niekedy dostanem TypeError: Cannot read property 'x' of null
+
         blocksOffset = Math.round(direction * monitor.getDifferenceFromInitialOffset().x / dropTargetProps.scaffoldBlockPxWidth);
       }
 
@@ -2232,41 +2233,24 @@ function () {
   }, {
     key: "canDrop",
     value: function canDrop(dropTargetProps, monitor) {
-      if (!monitor.isOver()) {
-        return false;
-      }
-
-      var rowAbove = dropTargetProps.getPrevRow();
-      var abovePath = rowAbove ? rowAbove.path : [];
-      var aboveNode = rowAbove ? rowAbove.node : {};
-      var targetDepth = dropTargetProps.path.length; // Cannot drop if we're adding to the children of the row above and
-      //  the row above is a function
-
-      if (targetDepth >= abovePath.length && typeof aboveNode.children === 'function') {
-        return false;
-      }
-
+      // is not reliable https://github.com/react-dnd/react-dnd/issues/996
+      // if (!monitor.isOver()) {
+      //   return false;
+      // }
       if (typeof this.customCanDrop === 'function') {
         var _monitor$getItem = monitor.getItem(),
-            node = _monitor$getItem.node;
+            node = _monitor$getItem.node,
+            path = _monitor$getItem.path,
+            treeIndex = _monitor$getItem.treeIndex;
 
-        var addedResult = memoizedInsertNode({
-          treeData: this.treeData,
-          newNode: node,
-          depth: targetDepth,
-          getNodeKey: this.getNodeKey,
-          minimumTreeIndex: dropTargetProps.listIndex,
-          expandParent: true
-        });
         return this.customCanDrop({
-          node: node,
-          prevPath: monitor.getItem().path,
-          prevParent: monitor.getItem().parentNode,
-          prevTreeIndex: monitor.getItem().treeIndex,
+          draggedNode: node,
+          draggedPath: path,
+          draggedTreeIndex: treeIndex,
           // Equals -1 when dragged from external tree
-          nextPath: addedResult.path,
-          nextParent: addedResult.parentNode,
-          nextTreeIndex: addedResult.treeIndex
+          overNode: dropTargetProps.node,
+          overPath: dropTargetProps.path,
+          overTreeIndex: dropTargetProps.treeIndex
         });
       }
 
@@ -2332,7 +2316,8 @@ function () {
         },
         hover: function hover(dropTargetProps) {
           _this2.dragHover({
-            hoveredNode: dropTargetProps.node
+            hoveredNode: dropTargetProps.node,
+            hoveredPath: dropTargetProps.path
           });
         },
         canDrop: this.canDrop.bind(this)
@@ -2520,6 +2505,7 @@ function (_Component) {
       searchFocusTreeIndex: null,
       dragging: false,
       hoveredNode: null,
+      hoveredPath: null,
       // props that need to be used in gDSFP or static functions will be stored here
       instanceProps: {
         treeData: [],
@@ -2677,14 +2663,16 @@ function (_Component) {
   }, {
     key: "dragHover",
     value: function dragHover(_ref5) {
-      var hoveredNode = _ref5.hoveredNode;
+      var hoveredNode = _ref5.hoveredNode,
+          hoveredPath = _ref5.hoveredPath;
 
       if (this.state.hoveredNode === hoveredNode) {
         return;
       }
 
       this.setState({
-        hoveredNode: hoveredNode
+        hoveredNode: hoveredNode,
+        hoveredPath: hoveredPath
       });
     }
   }, {
@@ -2701,7 +2689,8 @@ function (_Component) {
           draggedMinimumTreeIndex: null,
           draggedDepth: null,
           dragging: false,
-          hoveredNode: null
+          hoveredNode: null,
+          hoveredPath: null
         });
       }; // Drop was cancelled
 
@@ -2786,7 +2775,9 @@ function (_Component) {
           path = row.path,
           lowerSiblingCounts = row.lowerSiblingCounts,
           treeIndex = row.treeIndex;
-      var hoveredNode = this.state.hoveredNode;
+      var _this$state = this.state,
+          hoveredNode = _this$state.hoveredNode,
+          hoveredPath = _this$state.hoveredPath;
 
       var _mergeTheme2 = mergeTheme(this.props),
           canDrag = _mergeTheme2.canDrag,
@@ -2834,6 +2825,7 @@ function (_Component) {
         isSearchFocus: isSearchFocus,
         canDrag: rowCanDrag,
         hoveredNode: hoveredNode,
+        hoveredPath: hoveredPath,
         toggleChildrenVisibility: this.toggleChildrenVisibility
       }, sharedProps, nodeProps)));
     }
@@ -2854,13 +2846,13 @@ function (_Component) {
           getNodeKey = _mergeTheme3.getNodeKey,
           rowDirection = _mergeTheme3.rowDirection;
 
-      var _this$state = this.state,
-          searchMatches = _this$state.searchMatches,
-          searchFocusTreeIndex = _this$state.searchFocusTreeIndex,
-          draggedNode = _this$state.draggedNode,
-          draggedDepth = _this$state.draggedDepth,
-          draggedMinimumTreeIndex = _this$state.draggedMinimumTreeIndex,
-          instanceProps = _this$state.instanceProps;
+      var _this$state2 = this.state,
+          searchMatches = _this$state2.searchMatches,
+          searchFocusTreeIndex = _this$state2.searchFocusTreeIndex,
+          draggedNode = _this$state2.draggedNode,
+          draggedDepth = _this$state2.draggedDepth,
+          draggedMinimumTreeIndex = _this$state2.draggedMinimumTreeIndex,
+          instanceProps = _this$state2.instanceProps;
       var treeData = this.state.draggingTreeData || instanceProps.treeData;
       var rowDirectionClass = rowDirection === 'rtl' ? 'rst__rtl' : null;
       var rows;
@@ -3010,6 +3002,7 @@ function (_Component) {
         newState.draggedDepth = null;
         newState.dragging = false;
         newState.hoveredNode = null;
+        newState.hoveredPath = null;
       } else if (!isEqual(instanceProps.searchQuery, nextProps.searchQuery)) {
         Object.assign(newState, ReactSortableTree.search(nextProps, prevState, true, true, false));
       } else if (instanceProps.searchFocusOffset !== nextProps.searchFocusOffset) {
