@@ -2215,9 +2215,11 @@ function () {
         }
       } else {
         // handle row direction support
-        var direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1; // niekedy dostanem TypeError: Cannot read property 'x' of null
-
-        blocksOffset = Math.round(direction * monitor.getDifferenceFromInitialOffset().x / dropTargetProps.scaffoldBlockPxWidth);
+        var direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1;
+        var offset = monitor.getDifferenceFromInitialOffset() || {
+          x: 0
+        };
+        blocksOffset = Math.round(direction * offset.x / dropTargetProps.scaffoldBlockPxWidth);
       }
 
       var targetDepth = Math.min(dropTargetDepth, Math.max(0, dragSourceInitialDepth + blocksOffset - 1)); // If a maxDepth is defined, constrain the target depth
