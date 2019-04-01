@@ -4,8 +4,6 @@ import {
   DropTarget as dropTarget,
 } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import { findDOMNode } from 'react-dom';
-import { getDepth } from './tree-data-utils';
 
 export default class DndManager {
   constructor(treeRef) {
@@ -56,70 +54,13 @@ export default class DndManager {
     return this.treeRef.props.maxDepth;
   }
 
-  getTargetDepth(dropTargetProps, monitor, component) {
-    let dropTargetDepth = 0;
-
-    const rowAbove = dropTargetProps.getPrevRow();
-    if (rowAbove) {
-      let { path } = rowAbove;
-      const aboveNodeCannotHaveChildren = !this.treeRef.canNodeHaveChildren(
-        rowAbove.node
-      );
-      if (aboveNodeCannotHaveChildren) {
-        path = path.slice(0, path.length - 1);
-      }
-
-      // Limit the length of the path to the deepest possible
-      dropTargetDepth = Math.min(path.length, dropTargetProps.path.length);
+  getTargetDepth(dropTargetProps) {
+    // get current node or parent node
+    if (this.treeRef.canNodeHaveChildren(dropTargetProps.node)) {
+      return dropTargetProps.path.length
     }
 
-    let blocksOffset;
-    let dragSourceInitialDepth = (monitor.getItem().path || []).length;
-
-    // When adding node from external source
-    if (monitor.getItem().treeId !== this.treeId) {
-      // Ignore the tree depth of the source, if it had any to begin with
-      dragSourceInitialDepth = 0;
-
-      if (component) {
-        const relativePosition = findDOMNode(component).getBoundingClientRect(); // eslint-disable-line react/no-find-dom-node
-        const leftShift =
-          monitor.getSourceClientOffset().x - relativePosition.left;
-        blocksOffset = Math.round(
-          leftShift / dropTargetProps.scaffoldBlockPxWidth
-        );
-      } else {
-        blocksOffset = dropTargetProps.path.length;
-      }
-    } else {
-      // handle row direction support
-      const direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1;
-
-      const offset = monitor.getDifferenceFromInitialOffset() || { x: 0 };
-
-      blocksOffset = Math.round(
-        (direction * offset.x) /
-          dropTargetProps.scaffoldBlockPxWidth
-      );
-    }
-
-    let targetDepth = Math.min(
-      dropTargetDepth,
-      Math.max(0, dragSourceInitialDepth + blocksOffset - 1)
-    );
-
-    // If a maxDepth is defined, constrain the target depth
-    if (typeof this.maxDepth !== 'undefined' && this.maxDepth !== null) {
-      const draggedNode = monitor.getItem().node;
-      const draggedChildDepth = getDepth(draggedNode);
-
-      targetDepth = Math.max(
-        0,
-        Math.min(targetDepth, this.maxDepth - draggedChildDepth - 1)
-      );
-    }
-
-    return targetDepth;
+    return dropTargetProps.path.length - 1
   }
 
   canDrop(dropTargetProps, monitor) {
@@ -194,7 +135,8 @@ export default class DndManager {
           path: monitor.getItem().path,
           treeIndex: monitor.getItem().treeIndex,
           treeId: this.treeId,
-          minimumTreeIndex: dropTargetProps.treeIndex,
+          // otherwise cannot drop into folder with treeIndex = 0
+          minimumTreeIndex: Math.max(1, dropTargetProps.treeIndex),
           depth: this.getTargetDepth(dropTargetProps, monitor, component),
         };
 
