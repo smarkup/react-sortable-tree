@@ -6,7 +6,6 @@ import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import { findDOMNode } from 'react-dom';
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -2182,55 +2181,13 @@ function () {
 
   _createClass(DndManager, [{
     key: "getTargetDepth",
-    value: function getTargetDepth(dropTargetProps, monitor, component) {
-      var dropTargetDepth = 0;
-      var rowAbove = dropTargetProps.getPrevRow();
-
-      if (rowAbove) {
-        var path = rowAbove.path;
-        var aboveNodeCannotHaveChildren = !this.treeRef.canNodeHaveChildren(rowAbove.node);
-
-        if (aboveNodeCannotHaveChildren) {
-          path = path.slice(0, path.length - 1);
-        } // Limit the length of the path to the deepest possible
-
-
-        dropTargetDepth = Math.min(path.length, dropTargetProps.path.length);
+    value: function getTargetDepth(dropTargetProps) {
+      // get current node or parent node
+      if (this.treeRef.canNodeHaveChildren(dropTargetProps.node)) {
+        return dropTargetProps.path.length;
       }
 
-      var blocksOffset;
-      var dragSourceInitialDepth = (monitor.getItem().path || []).length; // When adding node from external source
-
-      if (monitor.getItem().treeId !== this.treeId) {
-        // Ignore the tree depth of the source, if it had any to begin with
-        dragSourceInitialDepth = 0;
-
-        if (component) {
-          var relativePosition = findDOMNode(component).getBoundingClientRect(); // eslint-disable-line react/no-find-dom-node
-
-          var leftShift = monitor.getSourceClientOffset().x - relativePosition.left;
-          blocksOffset = Math.round(leftShift / dropTargetProps.scaffoldBlockPxWidth);
-        } else {
-          blocksOffset = dropTargetProps.path.length;
-        }
-      } else {
-        // handle row direction support
-        var direction = dropTargetProps.rowDirection === 'rtl' ? -1 : 1;
-        var offset = monitor.getDifferenceFromInitialOffset() || {
-          x: 0
-        };
-        blocksOffset = Math.round(direction * offset.x / dropTargetProps.scaffoldBlockPxWidth);
-      }
-
-      var targetDepth = Math.min(dropTargetDepth, Math.max(0, dragSourceInitialDepth + blocksOffset - 1)); // If a maxDepth is defined, constrain the target depth
-
-      if (typeof this.maxDepth !== 'undefined' && this.maxDepth !== null) {
-        var draggedNode = monitor.getItem().node;
-        var draggedChildDepth = getDepth(draggedNode);
-        targetDepth = Math.max(0, Math.min(targetDepth, this.maxDepth - draggedChildDepth - 1));
-      }
-
-      return targetDepth;
+      return dropTargetProps.path.length - 1;
     }
   }, {
     key: "canDrop",
@@ -2308,7 +2265,7 @@ function () {
             path: monitor.getItem().path,
             treeIndex: monitor.getItem().treeIndex,
             treeId: _this2.treeId,
-            minimumTreeIndex: dropTargetProps.treeIndex,
+            minimumTreeIndex: Math.max(1, dropTargetProps.treeIndex),
             depth: _this2.getTargetDepth(dropTargetProps, monitor, component)
           };
 
