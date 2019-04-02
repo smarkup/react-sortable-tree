@@ -135,8 +135,7 @@ export default class DndManager {
           path: monitor.getItem().path,
           treeIndex: monitor.getItem().treeIndex,
           treeId: this.treeId,
-          // otherwise cannot drop into folder with treeIndex = 0
-          minimumTreeIndex: Math.max(1, dropTargetProps.treeIndex),
+          minimumTreeIndex: dropTargetProps.treeIndex + 1,
           depth: this.getTargetDepth(dropTargetProps, monitor, component),
         };
 
