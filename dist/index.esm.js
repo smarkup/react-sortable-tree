@@ -2265,7 +2265,7 @@ function () {
             path: monitor.getItem().path,
             treeIndex: monitor.getItem().treeIndex,
             treeId: _this2.treeId,
-            minimumTreeIndex: Math.max(1, dropTargetProps.treeIndex),
+            minimumTreeIndex: dropTargetProps.treeIndex + 1,
             depth: _this2.getTargetDepth(dropTargetProps, monitor, component)
           };
 
