@@ -2239,6 +2239,9 @@ function () {
           var dropTargetNode = monitor.getItem().node;
           var draggedNode = props.node;
           return draggedNode === dropTargetNode;
+        },
+        canDrag: function canDrag(props) {
+          return props.canDrag;
         }
       };
 
