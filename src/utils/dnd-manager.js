@@ -109,6 +109,8 @@ export default class DndManager {
 
         return draggedNode === dropTargetNode;
       },
+
+      canDrag: (props) => props.canDrag
     };
 
     function nodeDragSourcePropInjection(connect, monitor) {
