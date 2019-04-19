@@ -1,10 +1,9 @@
 import { AutoSizer, List } from 'react-virtualized';
 import isEqual from 'lodash.isequal';
 import withScrolling, { createScrollingComponent, createVerticalStrength, createHorizontalStrength } from 'frontend-collective-react-dnd-scrollzone';
-import { Consumer } from 'react-dnd/lib/DragDropContext';
 import React, { Component, Children, cloneElement } from 'react';
 import PropTypes from 'prop-types';
-import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import { DragDropContext, DragSource, DropTarget, DragDropContextConsumer } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
 function _typeof(obj) {
@@ -3219,7 +3218,7 @@ ReactSortableTree.defaultProps = {
 polyfill(ReactSortableTree);
 
 var SortableTreeWithoutDndContext = function SortableTreeWithoutDndContext(props) {
-  return React.createElement(Consumer, null, function (_ref15) {
+  return React.createElement(DragDropContextConsumer, null, function (_ref15) {
     var dragDropManager = _ref15.dragDropManager;
     return dragDropManager === undefined ? null : React.createElement(ReactSortableTree, _extends({}, props, {
       dragDropManager: dragDropManager

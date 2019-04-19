@@ -8,7 +8,6 @@ var reactVirtualized = require('react-virtualized');
 var isEqual = _interopDefault(require('lodash.isequal'));
 var withScrolling = require('frontend-collective-react-dnd-scrollzone');
 var withScrolling__default = _interopDefault(withScrolling);
-var DragDropContext = require('react-dnd/lib/DragDropContext');
 var React = require('react');
 var React__default = _interopDefault(React);
 var PropTypes = _interopDefault(require('prop-types'));
@@ -3227,7 +3226,7 @@ ReactSortableTree.defaultProps = {
 polyfill(ReactSortableTree);
 
 var SortableTreeWithoutDndContext = function SortableTreeWithoutDndContext(props) {
-  return React__default.createElement(DragDropContext.Consumer, null, function (_ref15) {
+  return React__default.createElement(reactDnd.DragDropContextConsumer, null, function (_ref15) {
     var dragDropManager = _ref15.dragDropManager;
     return dragDropManager === undefined ? null : React__default.createElement(ReactSortableTree, _extends({}, props, {
       dragDropManager: dragDropManager
