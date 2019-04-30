@@ -4,6 +4,7 @@ import {
   DropTarget as dropTarget,
 } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import { find } from './tree-data-utils';
 
 export default class DndManager {
   constructor(treeRef) {
@@ -64,21 +65,26 @@ export default class DndManager {
   }
 
   canDrop(dropTargetProps, monitor) {
-    // is not reliable https://github.com/react-dnd/react-dnd/issues/996
-    // if (!monitor.isOver()) {
-    //   return false;
-    // }
+    if (!monitor.isOver()) {
+      return false;
+    }
 
     if (typeof this.customCanDrop === 'function') {
-      const { node, path, treeIndex } = monitor.getItem();
+      const { nodes, paths, treeIndexes, treeId } = monitor.getItem();
 
       return this.customCanDrop({
-        draggedNode: node,
-        draggedPath: path,
-        draggedTreeIndex: treeIndex, // Equals -1 when dragged from external tree
-        overNode: dropTargetProps.node,
-        overPath: dropTargetProps.path,
-        overTreeIndex: dropTargetProps.treeIndex,
+        dragResult: {
+          nodes,
+          paths,
+          treeIndexes, // Contains -1 when dragged from external tree
+          treeId,
+        },
+        dropResult: {
+          node: dropTargetProps.node,
+          path: dropTargetProps.path,
+          treeIndex: dropTargetProps.treeIndex,
+          treeId: dropTargetProps.treeId,
+        }
       });
     }
 
@@ -88,13 +94,27 @@ export default class DndManager {
   wrapSource(el) {
     const nodeDragSource = {
       beginDrag: props => {
-        this.startDrag(props);
+        this.startDrag();
+
+        const nodeKeys = props.selectedNodeKeys;
+
+        const { matches: nodeInfos } = find({
+          getNodeKey: this.getNodeKey,
+          treeData: this.treeData,
+          searchMethod: item =>
+            nodeKeys.includes(this.getNodeKey(item)),
+          expandFocusMatchPaths: false,
+          expandAllMatchPaths: false,
+        });
+
+        const nodes = nodeInfos.map(nodeInfo => nodeInfo.node);
+        const paths = nodeInfos.map(nodeInfo => nodeInfo.path);
+        const treeIndexes = nodeInfos.map(nodeInfo => nodeInfo.treeIndex);
 
         return {
-          node: props.node,
-          parentNode: props.parentNode,
-          path: props.path,
-          treeIndex: props.treeIndex,
+          nodes,
+          paths,
+          treeIndexes,
           treeId: props.treeId,
         };
       },
@@ -104,10 +124,11 @@ export default class DndManager {
       },
 
       isDragging: (props, monitor) => {
-        const dropTargetNode = monitor.getItem().node;
-        const draggedNode = props.node;
+        const dropTargetNodes = monitor.getItem().nodes;
+        const key = this.getNodeKey(props);
 
-        return draggedNode === dropTargetNode;
+        return !!dropTargetNodes.find(dropTargetNode =>
+          this.getNodeKey({ node: dropTargetNode }) === key);
       },
 
       canDrag: (props) => props.canDrag
@@ -133,9 +154,9 @@ export default class DndManager {
     const nodeDropTarget = {
       drop: (dropTargetProps, monitor, component) => {
         const result = {
-          node: monitor.getItem().node,
-          path: monitor.getItem().path,
-          treeIndex: monitor.getItem().treeIndex,
+          nodes: monitor.getItem().nodes,
+          paths: monitor.getItem().paths,
+          treeIndexes: monitor.getItem().treeIndexes,
           treeId: this.treeId,
           minimumTreeIndex: dropTargetProps.treeIndex + 1,
           depth: this.getTargetDepth(dropTargetProps, monitor, component),
@@ -159,7 +180,7 @@ export default class DndManager {
         connectDropTarget: connect.dropTarget(),
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
-        draggedNode: dragged ? dragged.node : null,
+        draggedNodes: dragged ? dragged.nodes : null,
       };
     }
 
@@ -173,11 +194,11 @@ export default class DndManager {
   wrapPlaceholder(el) {
     const placeholderDropTarget = {
       drop: (dropTargetProps, monitor) => {
-        const { node, path, treeIndex } = monitor.getItem();
+        const { nodes, paths, treeIndexes } = monitor.getItem();
         const result = {
-          node,
-          path,
-          treeIndex,
+          nodes,
+          paths,
+          treeIndexes,
           treeId: this.treeId,
           minimumTreeIndex: 0,
           depth: 0,
@@ -195,7 +216,7 @@ export default class DndManager {
         connectDropTarget: connect.dropTarget(),
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
-        draggedNode: dragged ? dragged.node : null,
+        draggedNodes: dragged ? dragged.nodes : null,
       };
     }
 

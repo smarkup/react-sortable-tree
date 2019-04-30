@@ -412,7 +412,7 @@ function (_Component) {
           lowerSiblingCounts = _this$props.lowerSiblingCounts,
           connectDropTarget = _this$props.connectDropTarget,
           isOver = _this$props.isOver,
-          draggedNode = _this$props.draggedNode,
+          draggedNodes = _this$props.draggedNodes,
           canDrop = _this$props.canDrop,
           treeIndex = _this$props.treeIndex,
           treeId = _this$props.treeId,
@@ -420,7 +420,7 @@ function (_Component) {
           node = _this$props.node,
           path = _this$props.path,
           rowDirection = _this$props.rowDirection,
-          otherProps = _objectWithoutProperties(_this$props, ["children", "listIndex", "swapFrom", "swapLength", "swapDepth", "scaffoldBlockPxWidth", "lowerSiblingCounts", "connectDropTarget", "isOver", "draggedNode", "canDrop", "treeIndex", "treeId", "getPrevRow", "node", "path", "rowDirection"]);
+          otherProps = _objectWithoutProperties(_this$props, ["children", "listIndex", "swapFrom", "swapLength", "swapDepth", "scaffoldBlockPxWidth", "lowerSiblingCounts", "connectDropTarget", "isOver", "draggedNodes", "canDrop", "treeIndex", "treeId", "getPrevRow", "node", "path", "rowDirection"]);
 
       var rowDirectionClass = rowDirection === 'rtl' ? 'rst__rtl' : null; // Construct the scaffold representing the structure of the tree
 
@@ -544,7 +544,7 @@ function (_Component) {
         return React.cloneElement(child, {
           isOver: isOver,
           canDrop: canDrop,
-          draggedNode: draggedNode
+          draggedNodes: draggedNodes
         });
       }))));
     }
@@ -558,7 +558,7 @@ TreeNode.defaultProps = {
   swapDepth: null,
   swapLength: null,
   canDrop: false,
-  draggedNode: null,
+  draggedNodes: null,
   rowDirection: 'ltr'
 };
 TreeNode.propTypes = {
@@ -575,7 +575,7 @@ TreeNode.propTypes = {
   connectDropTarget: PropTypes.func.isRequired,
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   // used in dndManager
   getPrevRow: PropTypes.func.isRequired,
   node: PropTypes.shape({}).isRequired,
@@ -1864,7 +1864,7 @@ function (_Component) {
           node = _this$props.node,
           title = _this$props.title,
           subtitle = _this$props.subtitle,
-          draggedNode = _this$props.draggedNode,
+          draggedNodes = _this$props.draggedNodes,
           path = _this$props.path,
           treeIndex = _this$props.treeIndex,
           isSearchMatch = _this$props.isSearchMatch,
@@ -1877,7 +1877,7 @@ function (_Component) {
           isOver = _this$props.isOver,
           parentNode = _this$props.parentNode,
           rowDirection = _this$props.rowDirection,
-          otherProps = _objectWithoutProperties(_this$props, ["scaffoldBlockPxWidth", "toggleChildrenVisibility", "connectDragPreview", "connectDragSource", "isDragging", "canDrop", "canDrag", "node", "title", "subtitle", "draggedNode", "path", "treeIndex", "isSearchMatch", "isSearchFocus", "buttons", "className", "style", "didDrop", "treeId", "isOver", "parentNode", "rowDirection"]);
+          otherProps = _objectWithoutProperties(_this$props, ["scaffoldBlockPxWidth", "toggleChildrenVisibility", "connectDragPreview", "connectDragSource", "isDragging", "canDrop", "canDrag", "node", "title", "subtitle", "draggedNodes", "path", "treeIndex", "isSearchMatch", "isSearchFocus", "buttons", "className", "style", "didDrop", "treeId", "isOver", "parentNode", "rowDirection"]);
 
       var nodeTitle = title || node.title;
       var nodeSubtitle = subtitle || node.subtitle;
@@ -1909,7 +1909,7 @@ function (_Component) {
         }
       }
 
-      var isDraggedDescendant = draggedNode && isDescendant(draggedNode, node);
+      var isDraggedDescendant = draggedNodes && isDescendant(draggedNodes, node);
       var isLandingPadActive = !didDrop && isDragging;
       var buttonStyle = {
         left: -0.5 * scaffoldBlockPxWidth
@@ -1989,7 +1989,7 @@ NodeRendererDefault.defaultProps = {
   className: '',
   style: {},
   parentNode: null,
-  draggedNode: null,
+  draggedNodes: null,
   canDrop: false,
   title: null,
   subtitle: null,
@@ -2018,7 +2018,7 @@ NodeRendererDefault.propTypes = {
   // Needed for dndManager
   isDragging: PropTypes.bool.isRequired,
   didDrop: PropTypes.bool.isRequired,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   // Drop target
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,
@@ -2058,7 +2058,7 @@ function (_Component) {
 
 TreePlaceholder.defaultProps = {
   canDrop: false,
-  draggedNode: null
+  draggedNodes: null
 };
 TreePlaceholder.propTypes = {
   children: PropTypes.node.isRequired,
@@ -2066,7 +2066,7 @@ TreePlaceholder.propTypes = {
   connectDropTarget: PropTypes.func.isRequired,
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   treeId: PropTypes.string.isRequired,
   drop: PropTypes.func.isRequired
 };
@@ -2112,19 +2112,7 @@ var memoize = function memoize(f) {
     return savedResult;
   };
 };
-
-var memoizedInsertNode = memoize(insertNode);
 var memoizedGetFlatDataFromTree = memoize(getFlatDataFromTree);
-var memoizedGetDescendantCount = memoize(getDescendantCount);
-
-/* eslint-disable import/prefer-default-export */
-function slideRows(rows, fromIndex, toIndex) {
-  var count = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-
-  var rowsWithoutMoved = _toConsumableArray(rows.slice(0, fromIndex)).concat(_toConsumableArray(rows.slice(fromIndex + count)));
-
-  return _toConsumableArray(rowsWithoutMoved.slice(0, toIndex)).concat(_toConsumableArray(rows.slice(fromIndex, fromIndex + count)), _toConsumableArray(rowsWithoutMoved.slice(toIndex)));
-}
 
 function defaultGetNodeKey(_ref) {
   var treeIndex = _ref.treeIndex;
@@ -2199,24 +2187,31 @@ function () {
   }, {
     key: "canDrop",
     value: function canDrop(dropTargetProps, monitor) {
-      // is not reliable https://github.com/react-dnd/react-dnd/issues/996
-      // if (!monitor.isOver()) {
-      //   return false;
-      // }
+      if (!monitor.isOver()) {
+        return false;
+      }
+
       if (typeof this.customCanDrop === 'function') {
         var _monitor$getItem = monitor.getItem(),
-            node = _monitor$getItem.node,
-            path = _monitor$getItem.path,
-            treeIndex = _monitor$getItem.treeIndex;
+            nodes = _monitor$getItem.nodes,
+            paths = _monitor$getItem.paths,
+            treeIndexes = _monitor$getItem.treeIndexes,
+            treeId = _monitor$getItem.treeId;
 
         return this.customCanDrop({
-          draggedNode: node,
-          draggedPath: path,
-          draggedTreeIndex: treeIndex,
-          // Equals -1 when dragged from external tree
-          overNode: dropTargetProps.node,
-          overPath: dropTargetProps.path,
-          overTreeIndex: dropTargetProps.treeIndex
+          dragResult: {
+            nodes: nodes,
+            paths: paths,
+            treeIndexes: treeIndexes,
+            // Contains -1 when dragged from external tree
+            treeId: treeId
+          },
+          dropResult: {
+            node: dropTargetProps.node,
+            path: dropTargetProps.path,
+            treeIndex: dropTargetProps.treeIndex,
+            treeId: dropTargetProps.treeId
+          }
         });
       }
 
@@ -2229,13 +2224,34 @@ function () {
 
       var nodeDragSource = {
         beginDrag: function beginDrag(props) {
-          _this.startDrag(props);
+          _this.startDrag();
 
+          var nodeKeys = props.selectedNodeKeys;
+
+          var _find = find({
+            getNodeKey: _this.getNodeKey,
+            treeData: _this.treeData,
+            searchMethod: function searchMethod(item) {
+              return nodeKeys.includes(_this.getNodeKey(item));
+            },
+            expandFocusMatchPaths: false,
+            expandAllMatchPaths: false
+          }),
+              nodeInfos = _find.matches;
+
+          var nodes = nodeInfos.map(function (nodeInfo) {
+            return nodeInfo.node;
+          });
+          var paths = nodeInfos.map(function (nodeInfo) {
+            return nodeInfo.path;
+          });
+          var treeIndexes = nodeInfos.map(function (nodeInfo) {
+            return nodeInfo.treeIndex;
+          });
           return {
-            node: props.node,
-            parentNode: props.parentNode,
-            path: props.path,
-            treeIndex: props.treeIndex,
+            nodes: nodes,
+            paths: paths,
+            treeIndexes: treeIndexes,
             treeId: props.treeId
           };
         },
@@ -2243,9 +2259,15 @@ function () {
           _this.endDrag(monitor.getDropResult());
         },
         isDragging: function isDragging(props, monitor) {
-          var dropTargetNode = monitor.getItem().node;
-          var draggedNode = props.node;
-          return draggedNode === dropTargetNode;
+          var dropTargetNodes = monitor.getItem().nodes;
+
+          var key = _this.getNodeKey(props);
+
+          return !!dropTargetNodes.find(function (dropTargetNode) {
+            return _this.getNodeKey({
+              node: dropTargetNode
+            }) === key;
+          });
         },
         canDrag: function canDrag(props) {
           return props.canDrag;
@@ -2271,9 +2293,9 @@ function () {
       var nodeDropTarget = {
         drop: function drop(dropTargetProps, monitor, component) {
           var result = {
-            node: monitor.getItem().node,
-            path: monitor.getItem().path,
-            treeIndex: monitor.getItem().treeIndex,
+            nodes: monitor.getItem().nodes,
+            paths: monitor.getItem().paths,
+            treeIndexes: monitor.getItem().treeIndexes,
             treeId: _this2.treeId,
             minimumTreeIndex: dropTargetProps.treeIndex + 1,
             depth: _this2.getTargetDepth(dropTargetProps, monitor, component)
@@ -2298,7 +2320,7 @@ function () {
           connectDropTarget: connect.dropTarget(),
           isOver: monitor.isOver(),
           canDrop: monitor.canDrop(),
-          draggedNode: dragged ? dragged.node : null
+          draggedNodes: dragged ? dragged.nodes : null
         };
       }
 
@@ -2312,14 +2334,14 @@ function () {
       var placeholderDropTarget = {
         drop: function drop(dropTargetProps, monitor) {
           var _monitor$getItem2 = monitor.getItem(),
-              node = _monitor$getItem2.node,
-              path = _monitor$getItem2.path,
-              treeIndex = _monitor$getItem2.treeIndex;
+              nodes = _monitor$getItem2.nodes,
+              paths = _monitor$getItem2.paths,
+              treeIndexes = _monitor$getItem2.treeIndexes;
 
           var result = {
-            node: node,
-            path: path,
-            treeIndex: treeIndex,
+            nodes: nodes,
+            paths: paths,
+            treeIndexes: treeIndexes,
             treeId: _this3.treeId,
             minimumTreeIndex: 0,
             depth: 0
@@ -2337,7 +2359,7 @@ function () {
           connectDropTarget: connect.dropTarget(),
           isOver: monitor.isOver(),
           canDrop: monitor.canDrop(),
-          draggedNode: dragged ? dragged.node : null
+          draggedNodes: dragged ? dragged.nodes : null
         };
       }
 
@@ -2467,7 +2489,7 @@ function (_Component) {
 
     _this.state = {
       draggingTreeData: null,
-      draggedNode: null,
+      draggedNodes: null,
       draggedMinimumTreeIndex: null,
       draggedDepth: null,
       searchMatches: [],
@@ -2513,7 +2535,7 @@ function (_Component) {
         if (this.props.onDragStateChanged) {
           this.props.onDragStateChanged({
             isDragging: this.state.dragging,
-            draggedNode: this.state.draggedNode
+            draggedNodes: this.state.draggedNodes
           });
         }
       }
@@ -2571,69 +2593,61 @@ function (_Component) {
   }, {
     key: "moveNode",
     value: function moveNode(_ref3) {
-      var node = _ref3.node,
-          prevPath = _ref3.path,
-          prevTreeIndex = _ref3.treeIndex,
+      var _this2 = this;
+
+      var nodes = _ref3.nodes,
+          prevPaths = _ref3.paths,
+          prevTreeIndexes = _ref3.treeIndexes,
           depth = _ref3.depth,
           minimumTreeIndex = _ref3.minimumTreeIndex;
+      if (!nodes.length) return;
+      var instanceProps = this.state.instanceProps;
+      var treeData = instanceProps.treeData;
+      var nextParentNode;
+      var nextPath;
+      var nextTreeIndex;
+      nodes.forEach(function (node) {
+        var _insertNode = insertNode({
+          treeData: treeData,
+          newNode: node,
+          depth: depth,
+          minimumTreeIndex: minimumTreeIndex,
+          expandParent: true,
+          getNodeKey: _this2.props.getNodeKey
+        });
 
-      var _insertNode = insertNode({
-        treeData: this.state.draggingTreeData,
-        newNode: node,
-        depth: depth,
-        minimumTreeIndex: minimumTreeIndex,
-        expandParent: true,
-        getNodeKey: this.props.getNodeKey
-      }),
-          treeData = _insertNode.treeData,
-          treeIndex = _insertNode.treeIndex,
-          path = _insertNode.path,
-          nextParentNode = _insertNode.parentNode;
-
+        treeData = _insertNode.treeData;
+        nextPath = _insertNode.path;
+        nextParentNode = _insertNode.parentNode;
+        nextTreeIndex = _insertNode.treeIndex;
+      });
       this.props.onChange(treeData);
       this.props.onMoveNode({
-        treeData: treeData,
-        node: node,
-        treeIndex: treeIndex,
-        path: path,
-        nextPath: path,
-        nextTreeIndex: treeIndex,
-        prevPath: prevPath,
-        prevTreeIndex: prevTreeIndex,
-        nextParentNode: nextParentNode
+        dragResult: {
+          nodes: nodes,
+          paths: prevPaths,
+          treeIndexes: prevTreeIndexes
+        },
+        dropResult: {
+          node: nextParentNode,
+          path: nextPath,
+          treeIndex: nextTreeIndex
+        }
       });
     } // returns the new state after search
 
   }, {
     key: "startDrag",
-    value: function startDrag(_ref4) {
-      var _this2 = this;
-
-      var path = _ref4.path;
-      this.setState(function (prevState) {
-        var _removeNode = removeNode({
-          treeData: prevState.instanceProps.treeData,
-          path: path,
-          getNodeKey: _this2.props.getNodeKey
-        }),
-            draggingTreeData = _removeNode.treeData,
-            draggedNode = _removeNode.node,
-            draggedMinimumTreeIndex = _removeNode.treeIndex;
-
-        return {
-          draggingTreeData: draggingTreeData,
-          draggedNode: draggedNode,
-          draggedDepth: path.length - 1,
-          draggedMinimumTreeIndex: draggedMinimumTreeIndex,
-          dragging: true
-        };
+    value: function startDrag() {
+      this.setState({
+        dragging: true
       });
     }
   }, {
     key: "dragHover",
-    value: function dragHover(_ref5) {
-      var hoveredNode = _ref5.hoveredNode,
-          hoveredPath = _ref5.hoveredPath;
+    value: function dragHover(_ref4) {
+      var hoveredNode = _ref4.hoveredNode,
+          hoveredPath = _ref4.hoveredPath;
 
       if (this.state.hoveredNode === hoveredNode) {
         return;
@@ -2646,70 +2660,10 @@ function (_Component) {
     }
   }, {
     key: "endDrag",
-    value: function endDrag(dropResult) {
-      var _this3 = this;
-
-      var instanceProps = this.state.instanceProps;
-
-      var resetTree = function resetTree() {
-        return _this3.setState({
-          draggingTreeData: null,
-          draggedNode: null,
-          draggedMinimumTreeIndex: null,
-          draggedDepth: null,
-          dragging: false,
-          hoveredNode: null,
-          hoveredPath: null
-        });
-      }; // Drop was cancelled
-
-
-      if (!dropResult) {
-        resetTree();
-      } else if (dropResult.treeId !== this.treeId) {
-        // The node was dropped in an external drop target or tree
-        var node = dropResult.node,
-            path = dropResult.path,
-            treeIndex = dropResult.treeIndex;
-        var shouldCopy = this.props.shouldCopyOnOutsideDrop;
-
-        if (typeof shouldCopy === 'function') {
-          shouldCopy = shouldCopy({
-            node: node,
-            prevTreeIndex: treeIndex,
-            prevPath: path
-          });
-        }
-
-        var treeData = this.state.draggingTreeData || instanceProps.treeData; // If copying is enabled, a drop outside leaves behind a copy in the
-        //  source tree
-
-        if (shouldCopy) {
-          treeData = changeNodeAtPath({
-            treeData: instanceProps.treeData,
-            // use treeData unaltered by the drag operation
-            path: path,
-            newNode: function newNode(_ref6) {
-              var copyNode = _ref6.node;
-              return _objectSpread({}, copyNode);
-            },
-            // create a shallow copy of the node
-            getNodeKey: this.props.getNodeKey
-          });
-        }
-
-        this.props.onChange(treeData);
-        this.props.onMoveNode({
-          treeData: treeData,
-          node: node,
-          treeIndex: null,
-          path: null,
-          nextPath: null,
-          nextTreeIndex: null,
-          prevPath: path,
-          prevTreeIndex: treeIndex
-        });
-      }
+    value: function endDrag() {
+      this.setState({
+        dragging: false
+      });
     }
   }, {
     key: "drop",
@@ -2731,14 +2685,15 @@ function (_Component) {
 
   }, {
     key: "renderRow",
-    value: function renderRow(row, _ref7) {
-      var listIndex = _ref7.listIndex,
-          style = _ref7.style,
-          getPrevRow = _ref7.getPrevRow,
-          matchKeys = _ref7.matchKeys,
-          swapFrom = _ref7.swapFrom,
-          swapDepth = _ref7.swapDepth,
-          swapLength = _ref7.swapLength;
+    value: function renderRow(row, _ref5) {
+      var listIndex = _ref5.listIndex,
+          style = _ref5.style,
+          getPrevRow = _ref5.getPrevRow,
+          matchKeys = _ref5.matchKeys,
+          swapFrom = _ref5.swapFrom,
+          swapDepth = _ref5.swapDepth,
+          swapLength = _ref5.swapLength,
+          selectedNodeKeys = _ref5.selectedNodeKeys;
       var node = row.node,
           parentNode = row.parentNode,
           path = row.path,
@@ -2795,13 +2750,14 @@ function (_Component) {
         canDrag: rowCanDrag,
         hoveredNode: hoveredNode,
         hoveredPath: hoveredPath,
-        toggleChildrenVisibility: this.toggleChildrenVisibility
+        toggleChildrenVisibility: this.toggleChildrenVisibility,
+        selectedNodeKeys: selectedNodeKeys
       }, sharedProps, nodeProps)));
     }
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this3 = this;
 
       var _mergeTheme3 = mergeTheme(this.props),
           dragDropManager = _mergeTheme3.dragDropManager,
@@ -2812,45 +2768,23 @@ function (_Component) {
           isVirtualized = _mergeTheme3.isVirtualized,
           placeholderRenderer = _mergeTheme3.placeholderRenderer,
           reactVirtualizedListProps = _mergeTheme3.reactVirtualizedListProps,
-          getNodeKey = _mergeTheme3.getNodeKey,
-          rowDirection = _mergeTheme3.rowDirection;
+          rowDirection = _mergeTheme3.rowDirection,
+          selectedNodeKeys = _mergeTheme3.selectedNodeKeys;
 
       var _this$state2 = this.state,
           searchMatches = _this$state2.searchMatches,
           searchFocusTreeIndex = _this$state2.searchFocusTreeIndex,
-          draggedNode = _this$state2.draggedNode,
           draggedDepth = _this$state2.draggedDepth,
-          draggedMinimumTreeIndex = _this$state2.draggedMinimumTreeIndex,
           instanceProps = _this$state2.instanceProps;
       var treeData = this.state.draggingTreeData || instanceProps.treeData;
       var rowDirectionClass = rowDirection === 'rtl' ? 'rst__rtl' : null;
-      var rows;
+      var rows = this.getRows(treeData);
       var swapFrom = null;
-      var swapLength = null;
-
-      if (draggedNode && draggedMinimumTreeIndex !== null) {
-        var addedResult = memoizedInsertNode({
-          treeData: treeData,
-          newNode: draggedNode,
-          depth: draggedDepth,
-          minimumTreeIndex: draggedMinimumTreeIndex,
-          expandParent: true,
-          getNodeKey: getNodeKey
-        });
-        var swapTo = draggedMinimumTreeIndex;
-        swapFrom = addedResult.treeIndex;
-        swapLength = 1 + memoizedGetDescendantCount({
-          node: draggedNode
-        });
-        rows = slideRows(this.getRows(addedResult.treeData), swapFrom, swapTo, swapLength);
-      } else {
-        rows = this.getRows(treeData);
-      } // Get indices for rows that match the search conditions
-
+      var swapLength = null; // Get indices for rows that match the search conditions
 
       var matchKeys = {};
-      searchMatches.forEach(function (_ref8, i) {
-        var path = _ref8.path;
+      searchMatches.forEach(function (_ref6, i) {
+        var path = _ref6.path;
         matchKeys[path[path.length - 1]] = i;
       }); // Seek to the focused search result if there is one specified
 
@@ -2873,27 +2807,27 @@ function (_Component) {
         }, containerStyle);
         var ScrollZoneVirtualList = this.scrollZoneVirtualList; // Render list with react-virtualized
 
-        list = React__default.createElement(reactVirtualized.AutoSizer, null, function (_ref9) {
-          var height = _ref9.height,
-              width = _ref9.width;
+        list = React__default.createElement(reactVirtualized.AutoSizer, null, function (_ref7) {
+          var height = _ref7.height,
+              width = _ref7.width;
           return React__default.createElement(ScrollZoneVirtualList, _extends({}, scrollToInfo, {
             dragDropManager: dragDropManager,
-            verticalStrength: _this4.vStrength,
-            horizontalStrength: _this4.hStrength,
+            verticalStrength: _this3.vStrength,
+            horizontalStrength: _this3.hStrength,
             speed: 30,
             scrollToAlignment: "start",
             className: "rst__virtualScrollOverride",
             width: width,
-            onScroll: function onScroll(_ref10) {
-              var scrollTop = _ref10.scrollTop;
-              _this4.scrollTop = scrollTop;
+            onScroll: function onScroll(_ref8) {
+              var scrollTop = _ref8.scrollTop;
+              _this3.scrollTop = scrollTop;
             },
             height: height,
             style: innerStyle,
             rowCount: rows.length,
             estimatedRowSize: typeof rowHeight !== 'function' ? rowHeight : undefined,
-            rowHeight: typeof rowHeight !== 'function' ? rowHeight : function (_ref11) {
-              var index = _ref11.index;
+            rowHeight: typeof rowHeight !== 'function' ? rowHeight : function (_ref9) {
+              var index = _ref9.index;
               return rowHeight({
                 index: index,
                 treeIndex: index,
@@ -2901,10 +2835,10 @@ function (_Component) {
                 path: rows[index].path
               });
             },
-            rowRenderer: function rowRenderer(_ref12) {
-              var index = _ref12.index,
-                  rowStyle = _ref12.style;
-              return _this4.renderRow(rows[index], {
+            rowRenderer: function rowRenderer(_ref10) {
+              var index = _ref10.index,
+                  rowStyle = _ref10.style;
+              return _this3.renderRow(rows[index], {
                 listIndex: index,
                 style: rowStyle,
                 getPrevRow: function getPrevRow() {
@@ -2913,7 +2847,8 @@ function (_Component) {
                 matchKeys: matchKeys,
                 swapFrom: swapFrom,
                 swapDepth: draggedDepth,
-                swapLength: swapLength
+                swapLength: swapLength,
+                selectedNodeKeys: selectedNodeKeys
               });
             }
           }, reactVirtualizedListProps));
@@ -2921,7 +2856,7 @@ function (_Component) {
       } else {
         // Render list without react-virtualized
         list = rows.map(function (row, index) {
-          return _this4.renderRow(row, {
+          return _this3.renderRow(row, {
             listIndex: index,
             style: {
               height: typeof rowHeight !== 'function' ? rowHeight : rowHeight({
@@ -2937,7 +2872,8 @@ function (_Component) {
             matchKeys: matchKeys,
             swapFrom: swapFrom,
             swapDepth: draggedDepth,
-            swapLength: swapLength
+            swapLength: swapLength,
+            selectedNodeKeys: selectedNodeKeys
           });
         });
       }
@@ -2966,7 +2902,7 @@ function (_Component) {
         }
 
         newState.draggingTreeData = null;
-        newState.draggedNode = null;
+        newState.draggedNodes = null;
         newState.draggedMinimumTreeIndex = null;
         newState.draggedDepth = null;
         newState.dragging = false;
@@ -3050,11 +2986,11 @@ function (_Component) {
       walk({
         treeData: instanceProps.treeData,
         getNodeKey: props.getNodeKey,
-        callback: function callback(_ref13) {
-          var node = _ref13.node,
-              path = _ref13.path,
-              lowerSiblingCounts = _ref13.lowerSiblingCounts,
-              treeIndex = _ref13.treeIndex;
+        callback: function callback(_ref11) {
+          var node = _ref11.node,
+              path = _ref11.path,
+              lowerSiblingCounts = _ref11.lowerSiblingCounts,
+              treeIndex = _ref11.treeIndex;
 
           // If the node has children defined by a function, and is either expanded
           //  or set to load even before expansion, run the function.
@@ -3070,8 +3006,8 @@ function (_Component) {
                 return props.onChange(changeNodeAtPath({
                   treeData: instanceProps.treeData,
                   path: path,
-                  newNode: function newNode(_ref14) {
-                    var oldNode = _ref14.node;
+                  newNode: function newNode(_ref12) {
+                    var oldNode = _ref12.node;
                     return (// Only replace the old node if it's the one we set off to find children
                       //  for in the first place
                       oldNode === node ? _objectSpread({}, oldNode, {
@@ -3165,6 +3101,7 @@ ReactSortableTree.propTypes = {
   // generate the `path` array passed in callbacks.
   // By default, returns the index in the tree (omitting hidden nodes).
   getNodeKey: PropTypes.func,
+  selectedNodeKeys: PropTypes.arrayOf(PropTypes.string),
   // Called whenever tree data changed.
   // Just like with React input elements, you have to update your
   // own component's data to see the changes reflected.
@@ -3205,6 +3142,7 @@ ReactSortableTree.defaultProps = {
   maxDepth: null,
   treeNodeRenderer: null,
   nodeContentRenderer: null,
+  selectedNodeKeys: [],
   onMoveNode: function onMoveNode() {},
   onVisibilityToggle: function onVisibilityToggle() {},
   placeholderRenderer: null,
@@ -3226,8 +3164,8 @@ ReactSortableTree.defaultProps = {
 polyfill(ReactSortableTree);
 
 var SortableTreeWithoutDndContext = function SortableTreeWithoutDndContext(props) {
-  return React__default.createElement(reactDnd.DragDropContextConsumer, null, function (_ref15) {
-    var dragDropManager = _ref15.dragDropManager;
+  return React__default.createElement(reactDnd.DragDropContextConsumer, null, function (_ref13) {
+    var dragDropManager = _ref13.dragDropManager;
     return dragDropManager === undefined ? null : React__default.createElement(ReactSortableTree, _extends({}, props, {
       dragDropManager: dragDropManager
     }));

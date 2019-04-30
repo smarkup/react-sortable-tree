@@ -24,7 +24,7 @@ class TreePlaceholder extends Component {
 
 TreePlaceholder.defaultProps = {
   canDrop: false,
-  draggedNode: null,
+  draggedNodes: null,
 };
 
 TreePlaceholder.propTypes = {
@@ -34,7 +34,7 @@ TreePlaceholder.propTypes = {
   connectDropTarget: PropTypes.func.isRequired,
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   treeId: PropTypes.string.isRequired,
   drop: PropTypes.func.isRequired,
 };

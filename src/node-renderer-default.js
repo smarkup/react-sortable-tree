@@ -17,7 +17,7 @@ class NodeRendererDefault extends Component {
       node,
       title,
       subtitle,
-      draggedNode,
+      draggedNodes,
       path,
       treeIndex,
       isSearchMatch,
@@ -65,7 +65,7 @@ class NodeRendererDefault extends Component {
       }
     }
 
-    const isDraggedDescendant = draggedNode && isDescendant(draggedNode, node);
+    const isDraggedDescendant = draggedNodes && isDescendant(draggedNodes, node);
     const isLandingPadActive = !didDrop && isDragging;
 
     let buttonStyle = { left: -0.5 * scaffoldBlockPxWidth };
@@ -189,7 +189,7 @@ NodeRendererDefault.defaultProps = {
   className: '',
   style: {},
   parentNode: null,
-  draggedNode: null,
+  draggedNodes: null,
   canDrop: false,
   title: null,
   subtitle: null,
@@ -221,7 +221,7 @@ NodeRendererDefault.propTypes = {
   parentNode: PropTypes.shape({}), // Needed for dndManager
   isDragging: PropTypes.bool.isRequired,
   didDrop: PropTypes.bool.isRequired,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   // Drop target
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,

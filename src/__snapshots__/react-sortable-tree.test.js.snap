@@ -75,6 +75,9 @@ exports[`<SortableTree /> should render tree correctly 1`] = `
             }
           >
             <div
+              hoveredNode={null}
+              hoveredPath={null}
+              selectedNodeKeys={Array []}
               style={
                 Object {
                   "height": "100%",

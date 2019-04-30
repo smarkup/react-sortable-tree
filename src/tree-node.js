@@ -15,7 +15,7 @@ class TreeNode extends Component {
       lowerSiblingCounts,
       connectDropTarget,
       isOver,
-      draggedNode,
+      draggedNodes,
       canDrop,
       treeIndex,
       treeId, // Delete from otherProps
@@ -154,7 +154,7 @@ class TreeNode extends Component {
             cloneElement(child, {
               isOver,
               canDrop,
-              draggedNode,
+              draggedNodes,
             })
           )}
         </div>
@@ -168,7 +168,7 @@ TreeNode.defaultProps = {
   swapDepth: null,
   swapLength: null,
   canDrop: false,
-  draggedNode: null,
+  draggedNodes: null,
   rowDirection: 'ltr',
 };
 
@@ -188,7 +188,7 @@ TreeNode.propTypes = {
   connectDropTarget: PropTypes.func.isRequired,
   isOver: PropTypes.bool.isRequired,
   canDrop: PropTypes.bool,
-  draggedNode: PropTypes.shape({}),
+  draggedNodes: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 
   // used in dndManager
   getPrevRow: PropTypes.func.isRequired,
