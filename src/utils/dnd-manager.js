@@ -99,6 +99,15 @@ export default class DndManager {
 
         const nodeKeys = props.selectedNodeKeys;
 
+        if (!nodeKeys.includes(props.node.id)) {
+          return {
+            nodes: [props.node],
+            paths: [props.path],
+            treeIndexes: [props.treeIndex],
+            treeId: props.treeId
+          }
+        }
+
         const { matches: nodeInfos } = find({
           getNodeKey: this.getNodeKey,
           treeData: this.treeData,

@@ -2220,6 +2220,15 @@ function () {
 
           var nodeKeys = props.selectedNodeKeys;
 
+          if (!nodeKeys.includes(props.node.id)) {
+            return {
+              nodes: [props.node],
+              paths: [props.path],
+              treeIndexes: [props.treeIndex],
+              treeId: props.treeId
+            };
+          }
+
           var _find = find({
             getNodeKey: _this.getNodeKey,
             treeData: _this.treeData,
