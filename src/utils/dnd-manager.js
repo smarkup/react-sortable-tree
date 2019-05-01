@@ -65,9 +65,10 @@ export default class DndManager {
   }
 
   canDrop(dropTargetProps, monitor) {
-    if (!monitor.isOver()) {
-      return false;
-    }
+    // is not reliable https://github.com/react-dnd/react-dnd/issues/996
+    // if (!monitor.isOver()) {
+    //   return false;
+    // }
 
     if (typeof this.customCanDrop === 'function') {
       const { nodes, paths, treeIndexes, treeId } = monitor.getItem();

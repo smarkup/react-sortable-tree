@@ -2179,10 +2179,10 @@ function () {
   }, {
     key: "canDrop",
     value: function canDrop(dropTargetProps, monitor) {
-      if (!monitor.isOver()) {
-        return false;
-      }
-
+      // is not reliable https://github.com/react-dnd/react-dnd/issues/996
+      // if (!monitor.isOver()) {
+      //   return false;
+      // }
       if (typeof this.customCanDrop === 'function') {
         var _monitor$getItem = monitor.getItem(),
             nodes = _monitor$getItem.nodes,
