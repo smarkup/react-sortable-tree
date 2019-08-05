@@ -2556,6 +2556,12 @@ function (_Component) {
       });
     }
   }, {
+    key: "getRenderedRows",
+    value: function getRenderedRows() {
+      var treeData = this.state.draggingTreeData || this.state.instanceProps.treeData;
+      return this.getRows(treeData);
+    }
+  }, {
     key: "handleDndMonitorChange",
     value: function handleDndMonitorChange() {
       var monitor = this.props.dragDropManager.getMonitor(); // If the drag ends and the tree is still in a mid-drag state,
@@ -3163,15 +3169,15 @@ ReactSortableTree.defaultProps = {
   rowDirection: 'ltr'
 };
 polyfill(ReactSortableTree);
-
-var SortableTreeWithoutDndContext = function SortableTreeWithoutDndContext(props) {
+var SortableTreeWithoutDndContext = React.forwardRef(function (props, ref) {
   return React.createElement(DragDropContextConsumer, null, function (_ref13) {
     var dragDropManager = _ref13.dragDropManager;
     return dragDropManager === undefined ? null : React.createElement(ReactSortableTree, _extends({}, props, {
-      dragDropManager: dragDropManager
+      dragDropManager: dragDropManager,
+      ref: ref
     }));
   });
-}; // Export the tree component without the react-dnd DragDropContext,
+}); // Export the tree component without the react-dnd DragDropContext,
 var SortableTree = DndManager.wrapRoot(SortableTreeWithoutDndContext);
 
 export default SortableTree;
