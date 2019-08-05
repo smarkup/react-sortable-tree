@@ -223,6 +223,13 @@ class ReactSortableTree extends Component {
     });
   }
 
+  getRenderedRows() {
+    const treeData = this.state.draggingTreeData
+      || this.state.instanceProps.treeData;
+
+    return this.getRows(treeData)
+  }
+
   handleDndMonitorChange() {
     const monitor = this.props.dragDropManager.getMonitor();
     // If the drag ends and the tree is still in a mid-drag state,
