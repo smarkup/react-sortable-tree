@@ -830,15 +830,15 @@ ReactSortableTree.defaultProps = {
 
 polyfill(ReactSortableTree);
 
-const SortableTreeWithoutDndContext = props => (
+const SortableTreeWithoutDndContext = React.forwardRef((props, ref) => (
   <DragDropContextConsumer>
     {({ dragDropManager }) =>
       dragDropManager === undefined ? null : (
-        <ReactSortableTree {...props} dragDropManager={dragDropManager} />
+        <ReactSortableTree {...props} dragDropManager={dragDropManager} ref={ref} />
       )
     }
   </DragDropContextConsumer>
-);
+));
 
 // Export the tree component without the react-dnd DragDropContext,
 // for when component is used with other components using react-dnd.
