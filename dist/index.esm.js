@@ -2214,6 +2214,16 @@ function () {
     value: function wrapSource(el) {
       var _this = this;
 
+      var hoveredPath;
+      var hoveredNode;
+
+      function getHoveredItems() {
+        return {
+          hoveredPath: hoveredPath,
+          hoveredNode: hoveredNode
+        };
+      }
+
       var nodeDragSource = {
         beginDrag: function beginDrag(props) {
           _this.startDrag();
@@ -2222,6 +2232,7 @@ function () {
 
           if (!nodeKeys.includes(props.node.id)) {
             return {
+              getHoveredItems: getHoveredItems,
               nodes: [props.node],
               paths: [props.path],
               treeIndexes: [props.treeIndex],
@@ -2250,6 +2261,7 @@ function () {
             return nodeInfo.treeIndex;
           });
           return {
+            getHoveredItems: getHoveredItems,
             nodes: nodes,
             paths: paths,
             treeIndexes: treeIndexes,
@@ -2257,6 +2269,9 @@ function () {
           };
         },
         endDrag: function endDrag(props, monitor) {
+          hoveredPath = null;
+          hoveredNode = null;
+
           _this.endDrag(monitor.getDropResult());
         },
         isDragging: function isDragging(props, monitor) {
@@ -2275,7 +2290,11 @@ function () {
         }
       };
 
-      function nodeDragSourcePropInjection(connect, monitor) {
+      function nodeDragSourcePropInjection(connect, monitor, props) {
+        // eslint-disable-next-line prefer-destructuring
+        hoveredPath = props.hoveredPath; // eslint-disable-next-line prefer-destructuring
+
+        hoveredNode = props.hoveredNode;
         return {
           connectDragSource: connect.dragSource(),
           connectDragPreview: connect.dragPreview(),
