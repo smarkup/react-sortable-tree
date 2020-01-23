@@ -93,6 +93,13 @@ export default class DndManager {
   }
 
   wrapSource(el) {
+    let hoveredPath;
+    let hoveredNode;
+
+    function getHoveredItems() {
+      return { hoveredPath, hoveredNode }
+    }
+
     const nodeDragSource = {
       beginDrag: props => {
         this.startDrag();
@@ -101,6 +108,7 @@ export default class DndManager {
 
         if (!nodeKeys.includes(props.node.id)) {
           return {
+            getHoveredItems,
             nodes: [props.node],
             paths: [props.path],
             treeIndexes: [props.treeIndex],
@@ -122,6 +130,7 @@ export default class DndManager {
         const treeIndexes = nodeInfos.map(nodeInfo => nodeInfo.treeIndex);
 
         return {
+          getHoveredItems,
           nodes,
           paths,
           treeIndexes,
@@ -130,6 +139,9 @@ export default class DndManager {
       },
 
       endDrag: (props, monitor) => {
+        hoveredPath = null;
+        hoveredNode = null;
+
         this.endDrag(monitor.getDropResult());
       },
 
@@ -144,7 +156,12 @@ export default class DndManager {
       canDrag: (props) => props.canDrag
     };
 
-    function nodeDragSourcePropInjection(connect, monitor) {
+    function nodeDragSourcePropInjection(connect, monitor, props) {
+      // eslint-disable-next-line prefer-destructuring
+      hoveredPath = props.hoveredPath;
+      // eslint-disable-next-line prefer-destructuring
+      hoveredNode = props.hoveredNode;
+
       return {
         connectDragSource: connect.dragSource(),
         connectDragPreview: connect.dragPreview(),
@@ -178,7 +195,10 @@ export default class DndManager {
       },
 
       hover: (dropTargetProps) => {
-        this.dragHover({ hoveredNode: dropTargetProps.node, hoveredPath: dropTargetProps.path });
+        this.dragHover({
+          hoveredNode: dropTargetProps.node,
+          hoveredPath: dropTargetProps.path
+        });
       },
 
       canDrop: this.canDrop.bind(this),
